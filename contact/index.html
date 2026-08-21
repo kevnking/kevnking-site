@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Contact Kevin King | Tulsa Realtor</title>
+<meta name="description" content="Reach Kevin King directly. 918.853.9182 | kking@mcgrawok.com. Licensed Realtor, McGraw Realtors, Tulsa OK.">
+<link rel="canonical" href="https://kevnking.com/contact/">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/shared.css">
+
+</head>
+<body>
+<nav id="nav">
+  <a class="nav-logo" href="/"  >Kevin <span>King</span></a>
+  <div class="nav-links" id="nav-links">
+    <a href="/" >Home</a>
+    <a href="/about/">About</a>
+    <a href="/sell-as-is/">Sell As-Is</a>
+    <a href="/work-with-me/">Work With Me</a>
+    <a href="/articles/">Articles</a>
+    <a href="/sell-as-is/" class="nav-cta">Get an Offer</a>
+  </div>
+  <button class="hamburger" id="ham" aria-label="Menu">
+    <span class="ham-bar"></span><span class="ham-bar"></span><span class="ham-bar"></span>
+  </button>
+</nav>
+<div class="contact-hero">
+    <div class="contact-hero-inner">
+      <div>
+        <span class="label">Contact</span>
+        <h1>Let's talk<br>directly.</h1>
+        <p>If you reach out, I'm the one responding.</p>
+        <div class="contact-details">
+          <div class="cd"><label>Phone</label><a href="tel:+19188539182">918.853.9182</a></div>
+          <div class="cd"><label>Email</label><a href="mailto:kking@mcgrawok.com">kking@mcgrawok.com</a></div>
+          <div class="cd"><label>Brokerage</label><a>McGraw Realtors · Tulsa, OK</a></div>
+          <div class="cd"><label>License</label><a>Oklahoma · Since 2018</a></div>
+        </div>
+      </div>
+      <div class="photo-block photo-portrait contact-photo"></div>
+    </div>
+  </div>
+
+  <div class="contact-form-section">
+    <div>
+      <h2 style="margin-bottom:8px;">Send a message.</h2>
+      <p style="margin-bottom:28px;">Fastest way to start a conversation.</p>
+      <div class="lf">
+        <div class="fg"><label>Name *</label><input type="text" placeholder="Your full name"></div>
+        <div class="fg"><label>Phone *</label><input type="tel" placeholder="(918) XXX-XXXX"></div>
+        <div class="fg"><label>Email *</label><input type="email" placeholder="you@email.com"></div>
+        <div class="fg"><label>What's this about? *</label>
+          <select><option value="">Select</option><option>Selling a home as-is</option><option>Buying a home</option><option>Listing a property</option><option>Investment Property</option><option>General question</option></select>
+        </div>
+        <div class="fg"><label>Message</label><textarea placeholder="What do you want to talk about?"></textarea></div>
+        <button class="btn btn-dark">Send Message</a>
+      </div>
+    </div>
+    <div>
+      <h2 style="margin-bottom:8px;">Or start here.</h2>
+      <p style="margin-bottom:24px;">Not sure where to go?</p>
+      <div class="contact-options">
+        <div class="co" href="/sell-as-is/"><span class="arr">→</span><h4>Sell my house as-is</h4><p>Get a direct offer from Kevin.</p></div>
+        <div class="co" href="/work-with-me/"><span class="arr">→</span><h4>Buy or sell through an agent</h4><p>Traditional representation.</p></div>
+        <div class="co" href="/articles/"><span class="arr">→</span><h4>Read the articles first</h4><p>Get informed before making any moves.</p></div>
+      </div>
+    </div>
+  </div>
+
+  
+</div>
+
+<script>
+const FORM_ENDPOINT = 'https://formspree.io/f/YOUR_FORM_ID';
+
+function go(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  window.scrollTo(0, 0);
+  document.getElementById('nav-links').classList.remove('open');
+}
+
+function step(n) {
+  document.querySelectorAll('.form-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('s' + n).classList.add('active');
+  for (let i = 1; i <= 3; i++) {
+    const d = document.getElementById('d' + i);
+    const l = document.getElementById('l' + i);
+    d.classList.remove('active','done');
+    l.classList.remove('active');
+    if (i < n) { d.classList.add('done'); d.innerHTML = '✓'; }
+    else if (i === n) { d.classList.add('active'); d.innerHTML = i; l.classList.add('active'); }
+    else { d.innerHTML = i; }
+  }
+}
+
+function sel(el, gid) {
+  document.querySelectorAll('#' + gid + ' .ro').forEach(r => r.classList.remove('sel'));
+  el.classList.add('sel');
+  el.querySelector('input').checked = true;
+}
+
+function handlePic(input) {
+  const pp = document.getElementById('pp');
+  pp.innerHTML = '';
+  Array.from(input.files).slice(0, 5).forEach(file => {
+    const r = new FileReader();
+    r.onload = e => {
+      const img = document.createElement('img');
+      img.src = e.target.result;
+      img.style.cssText = 'width:64px;height:64px;object-fit:cover;border-radius:2px;border:1px solid rgba(255,255,255,0.1);';
+      pp.appendChild(img);
+    };
+    r.readAsDataURL(file);
+  });
+}
+
+async function submitForm() {
+  const btn = document.querySelector('#s3 .btn-sand');
+  btn.textContent = 'Submitting...';
+  btn.disabled = true;
+  const data = {};
+  document.querySelectorAll('#sell-form input:not([type=radio]):not([type=checkbox]):not([type=file]), #sell-form select, #sell-form textarea').forEach(el => {
+    if (el.value) data[el.placeholder || el.name || 'field'] = el.value;
+  });
+  ['cond','tl','li','pref'].forEach(n => {
+    const checked = document.querySelector('input[name="' + n + '"]:checked');
+    if (checked) data[n] = checked.closest('.ro').querySelector('span').textContent;
+  });
+  try {
+    const res = await fetch(FORM_ENDPOINT, { method: 'POST', headers: {'Content-Type':'application/json','Accept':'application/json'}, body: JSON.stringify(data) });
+    if (res.ok) {
+      document.querySelector('#sell-form .sell-form-inner').innerHTML = `
+        <div style="text-align:center;padding:64px 0;">
+          <div style="width:56px;height:56px;background:var(--sand);border-radius:50%;margin:0 auto 20px;display:flex;align-items:center;justify-content:center;font-size:24px;">✓</div>
+          <h2 style="color:var(--white);font-size:32px;margin-bottom:12px;">Received.</h2>
+          <p style="color:rgba(255,255,255,0.4);max-width:360px;margin:0 auto 28px;font-size:15px;">I'll review and reach out personally within 24 hours.</p>
+          <a class="btn btn-sand" href="/">Back to Home</a>
+        </div>`;
+    } else { throw new Error(); }
+  } catch(e) {
+    btn.textContent = 'Submit My Property';
+    btn.disabled = false;
+    alert('Something went wrong. Call or text Kevin directly: 918.853.9182');
+  }
+}
+
+document.getElementById('ham').addEventListener('click', () => {
+  document.getElementById('nav-links').classList.toggle('open');
+});
+
+document.querySelectorAll('.cat-btn').forEach(b => {
+  b.addEventListener('click', () => {
+    document.querySelectorAll('.cat-btn').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+  });
+});
+</script>
+</body>
+</html>
+<footer style="background:var(--ink);padding:52px 32px 36px;">
+  <div style="max-width:1140px;margin:0 auto;display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:48px;margin-bottom:40px;">
+    <div>
+      <div style="font-family:var(--serif);font-size:26px;color:rgba(255,255,255,0.7);margin-bottom:10px;">Kevin King</div>
+      <p style="font-size:12px;color:rgba(255,255,255,0.3);line-height:1.7;">Licensed Realtor · McGraw Realtors<br>Tulsa, Oklahoma · Licensed 2018</p>
+    </div>
+    <div>
+      <h5 style="font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.35);margin-bottom:14px;font-weight:500;">Navigate</h5>
+      <a href="/" style="display:block;font-size:13px;color:rgba(255,255,255,0.35);text-decoration:none;margin-bottom:8px;">Home</a>
+      <a href="/about/" style="display:block;font-size:13px;color:rgba(255,255,255,0.35);text-decoration:none;margin-bottom:8px;">About</a>
+      <a href="/sell-as-is/" style="display:block;font-size:13px;color:rgba(255,255,255,0.35);text-decoration:none;margin-bottom:8px;">Sell As-Is</a>
+      <a href="/work-with-me/" style="display:block;font-size:13px;color:rgba(255,255,255,0.35);text-decoration:none;margin-bottom:8px;">Work With Me</a>
+      <a href="/articles/" style="display:block;font-size:13px;color:rgba(255,255,255,0.35);text-decoration:none;margin-bottom:8px;">Articles</a>
+    </div>
+    <div>
+      <h5 style="font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.35);margin-bottom:14px;font-weight:500;">Contact</h5>
+      <a href="tel:+19188539182" style="display:block;font-size:13px;color:rgba(255,255,255,0.35);text-decoration:none;margin-bottom:8px;">918.853.9182</a>
+      <a href="mailto:kking@mcgrawok.com" style="display:block;font-size:13px;color:rgba(255,255,255,0.35);text-decoration:none;margin-bottom:8px;">kking@mcgrawok.com</a>
+    </div>
+  </div>
+  <div style="max-width:1140px;margin:0 auto;border-top:1px solid rgba(255,255,255,0.07);padding-top:20px;display:flex;justify-content:space-between;font-size:11px;color:rgba(255,255,255,0.2);">
+    <span>© 2025 Kevin King. All rights reserved.</span>
+    <span>kevnking.com · Tulsa, Oklahoma</span>
+  </div>
+</footer>
+<script>
+document.getElementById('ham').addEventListener('click', () => {
+  document.getElementById('nav-links').classList.toggle('open');
+});
+</script>
+</body>
+</html>
