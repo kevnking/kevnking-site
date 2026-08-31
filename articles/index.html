@@ -10,20 +10,12 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/shared.css">
-<script>
-document.querySelectorAll('.cat-btn').forEach(b => {
-  b.addEventListener('click', () => {
-    document.querySelectorAll('.cat-btn').forEach(x => x.classList.remove('active'));
-    b.classList.add('active');
-  });
-});
-</script>
 </head>
 <body>
 <nav id="nav">
-  <a class="nav-logo" href="/"  >Kevin <span>King</span></a>
+  <a class="nav-logo" href="/">Kevin <span>King</span></a>
   <div class="nav-links" id="nav-links">
-    <a href="/" >Home</a>
+    <a href="/">Home</a>
     <a href="/about/">About</a>
     <a href="/sell-as-is/">Sell As-Is</a>
     <a href="/work-with-me/">Work With Me</a>
@@ -34,64 +26,51 @@ document.querySelectorAll('.cat-btn').forEach(b => {
     <span class="ham-bar"></span><span class="ham-bar"></span><span class="ham-bar"></span>
   </button>
 </nav>
+
 <div class="blog-hero">
-    <span class="label">From the Field</span>
-    <h1>Articles</h1>
-    <p>Real estate from someone doing it. No content farm.</p>
+  <span class="label">From the Field</span>
+  <h1>Articles</h1>
+  <p>Real estate from someone doing it. No content farm.</p>
+</div>
+
+<div class="blog-body">
+  <div class="blog-grid">
+
+    <!-- ============================================================
+    HOW TO ADD A NEW ARTICLE CARD:
+    Copy the block below, paste it at the TOP of the grid (above the
+    existing cards), and fill in:
+      - href="/articles/YOUR-SLUG/"   ← must match the folder name in GitHub
+      - blog-cat span                 ← category label
+      - h3                            ← article title
+      - p                             ← one sentence excerpt
+      - blog-meta span                ← Month Year · X min
+      - photo-XXXX                    ← any photo class: photo-hero,
+                                         photo-inspection, photo-studs,
+                                         photo-couple, photo-porch,
+                                         photo-family, photo-sons,
+                                         photo-kitchen, photo-portrait
+
+    <a href="/articles/YOUR-SLUG/" class="blog-card" style="text-decoration:none;color:inherit;">
+      <div class="blog-card-img-wrap"><div class="photo-block photo-hero blog-card-img"></div></div>
+      <span class="blog-cat">Category</span>
+      <h3>Title of the article</h3>
+      <p>One sentence excerpt.</p>
+      <span class="blog-meta">Month Year · X min</span>
+    </a>
+    ============================================================ -->
+
+    <a href="/articles/sell-house-during-divorce-tulsa/" class="blog-card" style="text-decoration:none;color:inherit;">
+      <div class="blog-card-img-wrap"><div class="photo-block photo-couple blog-card-img"></div></div>
+      <span class="blog-cat">As-Is Selling</span>
+      <h3>Selling a house during divorce in Tulsa: how it actually works</h3>
+      <p>What Oklahoma's automatic injunction allows, buyout vs. listing vs. cash sale, and how to move fast when you need out.</p>
+      <span class="blog-meta">August 2026 · 8 min</span>
+    </a>
+
   </div>
-  <div class="blog-body">
-    <div class="blog-cats">
-      <button class="cat-btn active">All</a>
-      <button class="cat-btn">As-Is Selling</a>
-      <button class="cat-btn">Flipping</a>
-      <button class="cat-btn">Investing</a>
-      <button class="cat-btn">Tulsa Market</a>
-    </div>
-    <div class="blog-grid">
-      <div class="blog-card">
-        <div class="blog-card-img-wrap"><div class="photo-block photo-hero blog-card-img"></div></div>
-        <span class="blog-cat">As-Is Selling</span>
-        <h3>What "as-is" actually means, and why most buyers won't be straight with you</h3>
-        <p>How to evaluate a direct offer and protect yourself.</p>
-        <span class="blog-meta">April 2025 · 8 min</span>
-      </div>
-      <div class="blog-card">
-        <div class="blog-card-img-wrap"><div class="photo-block photo-inspection blog-card-img"></div></div>
-        <span class="blog-cat">Flipping</span>
-        <h3>The real cost of a Zinsco panel, and why it's not optional</h3>
-        <p>What buyers think when they see it and what it actually costs to deal with.</p>
-        <span class="blog-meta">March 2025 · 6 min</span>
-      </div>
-      <div class="blog-card">
-        <div class="blog-card-img-wrap"><div class="photo-block photo-couple blog-card-img"></div></div>
-        <span class="blog-cat">Tulsa Market</span>
-        <h3>Tulsa real estate in 2025: what I'm actually seeing on the ground</h3>
-        <p>Listings sitting. Prices softening in some pockets. What the market looks like week to week.</p>
-        <span class="blog-meta">March 2025 · 5 min</span>
-      </div>
-      <div class="blog-card">
-        <div class="blog-card-img-wrap"><div class="photo-block photo-sons blog-card-img"></div></div>
-        <span class="blog-cat">Investing</span>
-        <h3>How I structure multiple LLCs across different real estate verticals</h3>
-        <p>Entity separation, payroll, and why it matters as you scale.</p>
-        <span class="blog-meta">Feb 2025 · 7 min</span>
-      </div>
-      <div class="blog-card">
-        <div class="blog-card-img-wrap"><div class="photo-block photo-porch blog-card-img"></div></div>
-        <span class="blog-cat">Investing</span>
-        <h3>What closing a ground-up 20-unit apartment taught me about permit risk</h3>
-        <p>The one contract clause I'd add on every future land purchase.</p>
-        <span class="blog-meta">Jan 2025 · 8 min</span>
-      </div>
-      <div class="blog-card">
-        <div class="blog-card-img-wrap"><div class="photo-block photo-kitchen blog-card-img"></div></div>
-        <span class="blog-cat">As-Is Selling</span>
-        <h3>Inherited a house you don't want to deal with? Read this first.</h3>
-        <p>Probate, title complications, emotional attachment. How to think through your options.</p>
-        <span class="blog-meta">Dec 2024 · 6 min</span>
-      </div>
-    </div>
-  </div>
+</div>
+
 <footer style="background:var(--ink);padding:52px 32px 36px;">
   <div style="max-width:1140px;margin:0 auto;display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:48px;margin-bottom:40px;">
     <div>
@@ -117,6 +96,7 @@ document.querySelectorAll('.cat-btn').forEach(b => {
     <span>kevnking.com · Tulsa, Oklahoma</span>
   </div>
 </footer>
+
 <script>
 document.getElementById('ham').addEventListener('click', () => {
   document.getElementById('nav-links').classList.toggle('open');
