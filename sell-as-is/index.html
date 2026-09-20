@@ -5,14 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Sell Your House As-Is | Kevin King Tulsa</title>
 <meta name="description" content="Get a direct cash offer on your home in any condition. No repairs, no agent fees, no showings. Kevin King buys homes as-is in Tulsa.">
-<link rel="canonical" href="https://kevnking.com/sell/">
+<link rel="canonical" href="https://kevnking.com/sell-as-is/">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/shared.css">
 <script>
-const FORM_ENDPOINT = 'https://formspree.io/f/YOUR_FORM_ID';
-
 function step(n) {
   document.querySelectorAll('.form-panel').forEach(p => p.classList.remove('active'));
   document.getElementById('s' + n).classList.add('active');
@@ -25,12 +23,15 @@ function step(n) {
     else if (i === n) { d.classList.add('active'); d.innerHTML = i; l.classList.add('active'); }
     else { d.innerHTML = i; }
   }
+  window.scrollTo({top: document.getElementById('sell-form').offsetTop - 80, behavior: 'smooth'});
 }
+
 function sel(el, gid) {
   document.querySelectorAll('#' + gid + ' .ro').forEach(r => r.classList.remove('sel'));
   el.classList.add('sel');
   el.querySelector('input').checked = true;
 }
+
 function handlePic(input) {
   const pp = document.getElementById('pp');
   pp.innerHTML = '';
@@ -39,29 +40,56 @@ function handlePic(input) {
     r.onload = e => {
       const img = document.createElement('img');
       img.src = e.target.result;
-      img.style.cssText = 'width:64px;height:64px;object-fit:cover;border-radius:2px;border:1px solid rgba(255,255,255,0.1);';
+      img.style.cssText = 'width:64px;height:64px;object-fit:cover;border-radius:4px;border:1px solid rgba(255,255,255,0.1);';
       pp.appendChild(img);
     };
     r.readAsDataURL(file);
   });
 }
+
 async function submitForm() {
   const btn = document.querySelector('#s3 .btn-sand');
   btn.textContent = 'Submitting...';
   btn.disabled = true;
-  const data = {};
+
+  // Collect all form data
+  const fields = {};
+
+  // Text inputs and selects
   document.querySelectorAll('#sell-form input:not([type=radio]):not([type=checkbox]):not([type=file]), #sell-form select, #sell-form textarea').forEach(el => {
-    if (el.value) data[el.placeholder || el.name || 'field'] = el.value;
+    if (el.value && el.value.trim()) {
+      fields[el.name || el.placeholder || 'field'] = el.value.trim();
+    }
   });
-  ['cond','tl','li','pref'].forEach(n => {
-    const checked = document.querySelector('input[name="' + n + '"]:checked');
-    if (checked) data[n] = checked.closest('.ro').querySelector('span').textContent;
+
+  // Radio buttons
+  [['cond','cg'],['tl','tg'],['li','lg'],['pref','pg']].forEach(([name, gid]) => {
+    const checked = document.querySelector(`#${gid} input[type=radio]:checked`);
+    if (checked) fields[name] = checked.closest('.ro').querySelector('span').textContent;
   });
+
+  // Submit to Netlify Forms
+  const encoded = new URLSearchParams({ 'form-name': 'sell-form', ...fields }).toString();
+
   try {
-    const res = await fetch(FORM_ENDPOINT, { method: 'POST', headers: {'Content-Type':'application/json','Accept':'application/json'}, body: JSON.stringify(data) });
+    const res = await fetch('/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: encoded
+    });
+
     if (res.ok) {
-      document.querySelector('#sell-form .sell-form-inner').innerHTML = '<div style="text-align:center;padding:64px 0;"><div style="width:56px;height:56px;background:var(--sand);border-radius:50%;margin:0 auto 20px;display:flex;align-items:center;justify-content:center;font-size:24px;">✓</div><h2 style="color:var(--white);font-size:32px;margin-bottom:12px;">Received.</h2><p style="color:rgba(255,255,255,0.4);max-width:360px;margin:0 auto 28px;font-size:15px;">I'll review and reach out personally within 24 hours.</p><a class="btn btn-sand" href="/">Back to Home</a></div>';
-    } else { throw new Error(); }
+      document.querySelector('#sell-form .sell-form-inner').innerHTML = `
+        <div style="text-align:center;padding:80px 0;">
+          <div style="width:64px;height:64px;background:var(--sand);border-radius:50%;margin:0 auto 24px;display:flex;align-items:center;justify-content:center;font-size:28px;">✓</div>
+          <h2 style="color:var(--white);font-size:36px;margin-bottom:14px;">Received.</h2>
+          <p style="color:rgba(255,255,255,0.55);max-width:380px;margin:0 auto 32px;font-size:16px;line-height:1.7;">I'll review everything and reach out personally within 24 hours. If it's urgent, call or text me directly.</p>
+          <a href="tel:+19188539182" class="btn btn-sand" style="margin-right:12px;">Call Kevin</a>
+          <a class="btn btn-outline btn-story" href="/">Back to Home</a>
+        </div>`;
+    } else {
+      throw new Error();
+    }
   } catch(e) {
     btn.textContent = 'Submit My Property';
     btn.disabled = false;
@@ -71,10 +99,33 @@ async function submitForm() {
 </script>
 </head>
 <body>
+
+<!-- Netlify Forms detection — required for Netlify to register the form at deploy time -->
+<form name="sell-form" netlify netlify-honeypot="bot-field" hidden>
+  <input type="text" name="address">
+  <input type="text" name="property-type">
+  <input type="text" name="square-footage">
+  <input type="text" name="cond">
+  <textarea name="Describe what needs work"></textarea>
+  <select name="why-selling"></select>
+  <input type="text" name="tl">
+  <textarea name="What happens if you don't sell"></textarea>
+  <select name="other-offers"></select>
+  <input type="text" name="price-hoping-for">
+  <input type="text" name="li">
+  <textarea name="Anything else"></textarea>
+  <input type="text" name="first-name">
+  <input type="text" name="last-name">
+  <input type="tel" name="phone">
+  <input type="email" name="email">
+  <select name="best-time-to-call"></select>
+  <input type="text" name="pref">
+</form>
+
 <nav id="nav">
-  <a class="nav-logo" href="/"  >Kevin <span>King</span></a>
+  <a class="nav-logo" href="/">Kevin <span>King</span></a>
   <div class="nav-links" id="nav-links">
-    <a href="/" >Home</a>
+    <a href="/">Home</a>
     <a href="/about/">About</a>
     <a href="/sell-as-is/" style="color:var(--ink);font-weight:500;">Sell As-Is</a>
     <a href="/work-with-me/">Work With Me</a>
@@ -85,133 +136,138 @@ async function submitForm() {
     <span class="ham-bar"></span><span class="ham-bar"></span><span class="ham-bar"></span>
   </button>
 </nav>
+
 <div class="sell-top">
-    <div class="sell-top-inner">
-      <span class="label" style="color:var(--sand);">Direct Purchase</span>
-      <h1>Your house,<br><em>as it stands.</em></h1>
-      <p>I buy homes in any condition directly. No repairs, no agents, no commissions. Close on your timeline.</p>
-      <div class="sell-pills">
-        <span class="sell-pill">No Repairs</span>
-        <span class="sell-pill">No Agent Fees</span>
-        <span class="sell-pill">You Pick the Close Date</span>
-        <span class="sell-pill">Talk to Kevin Directly</span>
-      </div>
+  <div class="sell-top-inner">
+    <span class="label" style="color:var(--sand);">Direct Purchase</span>
+    <h1>Your house,<br><em>as it stands.</em></h1>
+    <p>I buy homes in any condition directly. No repairs, no agents, no commissions. Close on your timeline.</p>
+    <div class="sell-pills">
+      <span class="sell-pill">No Repairs</span>
+      <span class="sell-pill">No Agent Fees</span>
+      <span class="sell-pill">You Pick the Close Date</span>
+      <span class="sell-pill">Talk to Kevin Directly</span>
     </div>
   </div>
+</div>
 
-  <div class="sell-form-wrap" id="sell-form">
-    <div class="sell-form-inner" style="padding-top:48px;">
-      <div class="form-steps">
-        <div class="step-ind"><div class="step-dot active" id="d1">1</div><div class="step-lbl active" id="l1">Property</div></div>
-        <div class="step-ind"><div class="step-dot" id="d2">2</div><div class="step-lbl" id="l2">Situation</div></div>
-        <div class="step-ind"><div class="step-dot" id="d3">3</div><div class="step-lbl" id="l3">Contact</div></div>
-      </div>
+<div class="sell-form-wrap" id="sell-form">
+  <div class="sell-form-inner" style="padding-top:48px;">
+    <div class="form-steps">
+      <div class="step-ind"><div class="step-dot active" id="d1">1</div><div class="step-lbl active" id="l1">Property</div></div>
+      <div class="step-ind"><div class="step-dot" id="d2">2</div><div class="step-lbl" id="l2">Situation</div></div>
+      <div class="step-ind"><div class="step-dot" id="d3">3</div><div class="step-lbl" id="l3">Contact</div></div>
+    </div>
 
-      <!-- Step 1 -->
-      <div class="form-panel active" id="s1">
-        <div class="fg"><label>Property Address *</label><input type="text" placeholder="123 Main St, Tulsa, OK"></div>
-        <div class="fr">
-          <div class="fg"><label>Property Type *</label>
-            <select><option value="">Select</option><option>Single Family</option><option>Duplex / Multiplex</option><option>Mobile Home</option><option>Condo / Townhome</option><option>Other</option></select>
-          </div>
-          <div class="fg"><label>Approx. Square Footage</label><input type="text" placeholder="e.g. 1,400 sq ft"></div>
+    <!-- Step 1 -->
+    <div class="form-panel active" id="s1">
+      <div class="fg"><label>Property Address *</label><input type="text" name="address" placeholder="123 Main St, Tulsa, OK"></div>
+      <div class="fr">
+        <div class="fg"><label>Property Type *</label>
+          <select name="property-type"><option value="">Select</option><option>Single Family</option><option>Duplex / Multiplex</option><option>Mobile Home</option><option>Condo / Townhome</option><option>Other</option></select>
         </div>
-        <div class="fg"><label>Condition, be honest *</label>
-          <div class="rg" id="cg">
-            <label class="ro" onclick="sel(this,'cg')"><input type="radio" name="cond"><span>Good, minor cosmetic</span></label>
-            <label class="ro" onclick="sel(this,'cg')"><input type="radio" name="cond"><span>Fair, needs repairs</span></label>
-            <label class="ro" onclick="sel(this,'cg')"><input type="radio" name="cond"><span>Poor, significant work</span></label>
-            <label class="ro" onclick="sel(this,'cg')"><input type="radio" name="cond"><span>Distressed, major issues</span></label>
-          </div>
-        </div>
-        <div class="fg"><label>Describe what needs work *</label><textarea placeholder="Roof, foundation, water damage, electrical. Be specific. More detail = faster offer."></textarea></div>
-        <div class="fg"><label>Photos (optional but helpful)</label>
-          <div style="border:1px dashed rgba(255,255,255,0.15);padding:20px;text-align:center;border-radius:2px;cursor:pointer;" onclick="document.getElementById('pu').click()">
-            <input type="file" id="pu" accept="image/*" multiple style="display:none;" onchange="handlePic(this)">
-            <p style="font-size:12px;color:rgba(255,255,255,0.25);margin:0;">Click to upload · up to 5 photos · not required</p>
-          </div>
-          <div id="pp" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;"></div>
-        </div>
-        <div class="fn"><span></span><button class="btn btn-dark" onclick="step(2)">Next →</a></div>
+        <div class="fg"><label>Approx. Square Footage</label><input type="text" name="square-footage" placeholder="e.g. 1,400 sq ft"></div>
       </div>
+      <div class="fg"><label>Condition, be honest *</label>
+        <div class="rg" id="cg">
+          <label class="ro" onclick="sel(this,'cg')"><input type="radio" name="cond"><span>Good, minor cosmetic</span></label>
+          <label class="ro" onclick="sel(this,'cg')"><input type="radio" name="cond"><span>Fair, needs repairs</span></label>
+          <label class="ro" onclick="sel(this,'cg')"><input type="radio" name="cond"><span>Poor, significant work</span></label>
+          <label class="ro" onclick="sel(this,'cg')"><input type="radio" name="cond"><span>Distressed, major issues</span></label>
+        </div>
+      </div>
+      <div class="fg"><label>Describe what needs work</label><textarea name="Describe what needs work" placeholder="Roof, foundation, water damage, electrical. Be specific. More detail = faster offer."></textarea></div>
+      <div class="fg"><label>Photos (optional but helpful)</label>
+        <div style="border:1px dashed rgba(255,255,255,0.2);padding:20px;text-align:center;border-radius:6px;cursor:pointer;" onclick="document.getElementById('pu').click()">
+          <input type="file" id="pu" accept="image/*" multiple style="display:none;" onchange="handlePic(this)">
+          <p style="font-size:13px;color:rgba(255,255,255,0.4);margin:0;">Click to upload · up to 5 photos · not required</p>
+        </div>
+        <div id="pp" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;"></div>
+      </div>
+      <div class="fn"><span></span><button class="btn btn-sand" onclick="step(2)">Next Step →</button></div>
+    </div>
 
-      <!-- Step 2 -->
-      <div class="form-panel" id="s2">
-        <div class="fg"><label>Why are you selling? *</label>
-          <select><option value="">Select</option><option>Inherited property</option><option>Behind on payments / foreclosure</option><option>Divorce or separation</option><option>Relocation</option><option>Too much to manage</option><option>Tired landlord / problem tenants</option><option>Health / life change</option><option>Just want out</option><option>Other</option></select>
-        </div>
-        <div class="fg"><label>How fast do you need to sell? *</label>
-          <div class="rg" id="tg">
-            <label class="ro" onclick="sel(this,'tg')"><input type="radio" name="tl"><span>ASAP, 2 weeks</span></label>
-            <label class="ro" onclick="sel(this,'tg')"><input type="radio" name="tl"><span>Within 1 month</span></label>
-            <label class="ro" onclick="sel(this,'tg')"><input type="radio" name="tl"><span>1–3 months</span></label>
-            <label class="ro" onclick="sel(this,'tg')"><input type="radio" name="tl"><span>Just exploring</span></label>
-          </div>
-        </div>
-        <div class="fg"><label>What happens if you don't sell? *</label><textarea placeholder="Foreclosure risk, carrying costs, estate deadline, out-of-state. Be honest. It helps me help you."></textarea></div>
-        <div class="fr">
-          <div class="fg"><label>Other offers?</label>
-            <select><option value="">Select</option><option>No, just starting</option><option>Yes, have offers</option><option>Yes, wasn't satisfied</option></select>
-          </div>
-          <div class="fg"><label>Price you're hoping for</label><input type="text" placeholder="$XXX,XXX or not sure"></div>
-        </div>
-        <div class="fg"><label>Liens or title issues? *</label>
-          <div class="rg" id="lg" style="grid-template-columns:1fr 1fr;">
-            <label class="ro" onclick="sel(this,'lg')"><input type="radio" name="li"><span>No known issues</span></label>
-            <label class="ro" onclick="sel(this,'lg')"><input type="radio" name="li"><span>Yes, I'll explain</span></label>
-          </div>
-        </div>
-        <div class="fg"><label>Anything else I should know?</label><textarea placeholder="Tenants, estate complications, access issues..."></textarea></div>
-        <div class="fn"><button class="fbk" onclick="step(1)">← Back</a><button class="btn btn-dark" onclick="step(3)">Next →</a></div>
+    <!-- Step 2 -->
+    <div class="form-panel" id="s2">
+      <div class="fg"><label>Why are you selling? *</label>
+        <select name="why-selling"><option value="">Select</option><option>Inherited property</option><option>Behind on payments / foreclosure</option><option>Divorce or separation</option><option>Relocation</option><option>Too much to manage</option><option>Tired landlord / problem tenants</option><option>Health / life change</option><option>Just want out</option><option>Other</option></select>
       </div>
+      <div class="fg"><label>How fast do you need to sell? *</label>
+        <div class="rg" id="tg">
+          <label class="ro" onclick="sel(this,'tg')"><input type="radio" name="tl"><span>ASAP, 2 weeks</span></label>
+          <label class="ro" onclick="sel(this,'tg')"><input type="radio" name="tl"><span>Within 1 month</span></label>
+          <label class="ro" onclick="sel(this,'tg')"><input type="radio" name="tl"><span>1–3 months</span></label>
+          <label class="ro" onclick="sel(this,'tg')"><input type="radio" name="tl"><span>Just exploring</span></label>
+        </div>
+      </div>
+      <div class="fg"><label>What happens if you don't sell?</label><textarea name="What happens if you don't sell" placeholder="Foreclosure risk, carrying costs, estate deadline, out-of-state. Be honest. It helps me help you."></textarea></div>
+      <div class="fr">
+        <div class="fg"><label>Other offers?</label>
+          <select name="other-offers"><option value="">Select</option><option>No, just starting</option><option>Yes, have offers</option><option>Yes, wasn't satisfied</option></select>
+        </div>
+        <div class="fg"><label>Price you're hoping for</label><input type="text" name="price-hoping-for" placeholder="$XXX,XXX or not sure"></div>
+      </div>
+      <div class="fg"><label>Liens or title issues? *</label>
+        <div class="rg" id="lg" style="grid-template-columns:1fr 1fr;">
+          <label class="ro" onclick="sel(this,'lg')"><input type="radio" name="li"><span>No known issues</span></label>
+          <label class="ro" onclick="sel(this,'lg')"><input type="radio" name="li"><span>Yes, I'll explain</span></label>
+        </div>
+      </div>
+      <div class="fg"><label>Anything else I should know?</label><textarea name="Anything else" placeholder="Tenants, estate complications, access issues..."></textarea></div>
+      <div class="fn"><button class="fbk" onclick="step(1)">← Back</button><button class="btn btn-sand" onclick="step(3)">Next Step →</button></div>
+    </div>
 
-      <!-- Step 3 -->
-      <div class="form-panel" id="s3">
-        <div class="fr">
-          <div class="fg"><label>First Name *</label><input type="text" placeholder="First name"></div>
-          <div class="fg"><label>Last Name *</label><input type="text" placeholder="Last name"></div>
-        </div>
-        <div class="fr">
-          <div class="fg"><label>Phone *</label><input type="tel" placeholder="(918) XXX-XXXX"></div>
-          <div class="fg"><label>Email *</label><input type="email" placeholder="you@email.com"></div>
-        </div>
-        <div class="fr">
-          <div class="fg"><label>Best time to call *</label>
-            <select><option value="">Select</option><option>Mornings (8am–12pm)</option><option>Afternoons (12pm–5pm)</option><option>Evenings (5pm–8pm)</option><option>Anytime</option></select>
-          </div>
-          <div class="fg"><label>Prefer call or text? *</label>
-            <div class="rg" id="pg" style="grid-template-columns:1fr 1fr;margin-top:0;">
-              <label class="ro" onclick="sel(this,'pg')"><input type="radio" name="pref"><span>Call</span></label>
-              <label class="ro" onclick="sel(this,'pg')"><input type="radio" name="pref"><span>Text first</span></label>
-            </div>
-          </div>
-        </div>
-        <div class="cb-row">
-          <input type="checkbox">
-          <span>I confirm this is a genuine direct sale inquiry. I understand Kevin will personally review and reach out.</span>
-        </div>
-        <div class="fn"><button class="fbk" onclick="step(2)">← Back</a><button class="btn btn-sand" onclick="submitForm()">Submit My Property</a></div>
-        <p class="fnote">Goes directly to Kevin. Not shared, not routed. Expect a personal call or text within 24 hours.</p>
+    <!-- Step 3 -->
+    <div class="form-panel" id="s3">
+      <div class="fr">
+        <div class="fg"><label>First Name *</label><input type="text" name="first-name" placeholder="First name"></div>
+        <div class="fg"><label>Last Name *</label><input type="text" name="last-name" placeholder="Last name"></div>
       </div>
+      <div class="fr">
+        <div class="fg"><label>Phone *</label><input type="tel" name="phone" placeholder="(918) XXX-XXXX"></div>
+        <div class="fg"><label>Email *</label><input type="email" name="email" placeholder="you@email.com"></div>
+      </div>
+      <div class="fr">
+        <div class="fg"><label>Best time to call *</label>
+          <select name="best-time-to-call"><option value="">Select</option><option>Mornings (8am–12pm)</option><option>Afternoons (12pm–5pm)</option><option>Evenings (5pm–8pm)</option><option>Anytime</option></select>
+        </div>
+        <div class="fg"><label>Prefer call or text? *</label>
+          <div class="rg" id="pg" style="grid-template-columns:1fr 1fr;margin-top:0;">
+            <label class="ro" onclick="sel(this,'pg')"><input type="radio" name="pref"><span>Call</span></label>
+            <label class="ro" onclick="sel(this,'pg')"><input type="radio" name="pref"><span>Text first</span></label>
+          </div>
+        </div>
+      </div>
+      <div class="cb-row">
+        <input type="checkbox" id="confirm">
+        <span>I confirm this is a genuine direct sale inquiry. I understand Kevin will personally review and reach out.</span>
+      </div>
+      <div class="fn">
+        <button class="fbk" onclick="step(2)">← Back</button>
+        <button class="btn btn-sand" onclick="submitForm()">Submit My Property</button>
+      </div>
+      <p class="fnote">Goes directly to Kevin. Not shared, not routed. Expect a personal call or text within 24 hours.</p>
     </div>
   </div>
+</div>
 
-  <div class="sell-why">
-    <span class="label">The Honest Comparison</span>
-    <h2>Direct sale vs. listing.</h2>
-    <table class="compare">
-      <thead><tr><th>What Happens</th><th>Selling to Kevin</th><th>Traditional Listing</th></tr></thead>
-      <tbody>
-        <tr><td>Repairs needed</td><td class="ok">None</td><td class="no">Often required</td></tr>
-        <tr><td>Agent commissions</td><td class="ok">None</td><td class="no">5–6% off the top</td></tr>
-        <tr><td>Showings / open houses</td><td class="ok">None</td><td class="no">Weeks of disruption</td></tr>
-        <tr><td>Who you deal with</td><td class="ok">Kevin, directly</td><td class="no">Multiple agents</td></tr>
-        <tr><td>Timeline</td><td class="ok">You choose</td><td class="no">30–60+ days typical</td></tr>
-        <tr><td>Certainty</td><td class="ok">High</td><td class="no">Financing / inspection risk</td></tr>
-      </tbody>
-    </table>
-    <p style="font-size:12px;margin-top:16px;">If the market is genuinely the better move for you, I'll tell you. I'm licensed and have access to both options.</p>
-  </div>
+<div class="sell-why">
+  <span class="label">The Honest Comparison</span>
+  <h2>Direct sale vs. listing.</h2>
+  <table class="compare">
+    <thead><tr><th>What Happens</th><th>Selling to Kevin</th><th>Traditional Listing</th></tr></thead>
+    <tbody>
+      <tr><td>Repairs needed</td><td class="ok">None</td><td class="no">Often required</td></tr>
+      <tr><td>Agent commissions</td><td class="ok">None</td><td class="no">5–6% off the top</td></tr>
+      <tr><td>Showings / open houses</td><td class="ok">None</td><td class="no">Weeks of disruption</td></tr>
+      <tr><td>Who you deal with</td><td class="ok">Kevin, directly</td><td class="no">Multiple agents</td></tr>
+      <tr><td>Timeline</td><td class="ok">You choose</td><td class="no">30–60+ days typical</td></tr>
+      <tr><td>Certainty</td><td class="ok">High</td><td class="no">Financing / inspection risk</td></tr>
+    </tbody>
+  </table>
+  <p style="font-size:13px;margin-top:16px;">If the market is genuinely the better move for you, I'll tell you. I'm licensed and have access to both options.</p>
+</div>
+
 <footer style="background:var(--ink);padding:52px 32px 36px;">
   <div style="max-width:1140px;margin:0 auto;display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:48px;margin-bottom:40px;">
     <div>
@@ -237,6 +293,7 @@ async function submitForm() {
     <span>kevnking.com · Tulsa, Oklahoma</span>
   </div>
 </footer>
+
 <script>
 document.getElementById('ham').addEventListener('click', () => {
   document.getElementById('nav-links').classList.toggle('open');
