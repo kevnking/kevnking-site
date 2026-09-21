@@ -71,10 +71,12 @@ async function submitForm() {
     if (sel) fields[gid] = sel.textContent;
   });
 
-  const encoded = new URLSearchParams({ 'form-name': 'sell-form', ...fields }).toString();
-
   try {
-    const res = await fetch('/', { method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'}, body: encoded });
+    const res = await fetch('https://formspree.io/f/xojrezek', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify(fields)
+    });
     if (res.ok) {
       document.getElementById('form-card').innerHTML = `
         <div style="text-align:center;padding:72px 0;">
