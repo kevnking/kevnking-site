@@ -1,0 +1,57 @@
+/* kevnking.com — shared.js — scroll animations */
+(function () {
+  var selectors = [
+    '.home-what-item',
+    '.svc',
+    '.blog-card',
+    '.about-item',
+    '.about-body-text',
+    '.about-sidebar',
+    '.about-family-text',
+    '.about-family-photos',
+    '.home-story-text',
+    '.home-story-photos',
+    '.home-cta',
+    '.sell-why',
+    '.wwm-hero-inner',
+    '.contact-hero-inner',
+    '.contact-options',
+    '.co'
+  ];
+
+  function init() {
+    var observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry, i) {
+        if (entry.isIntersecting) {
+          var el = entry.target;
+          var delay = parseInt(el.dataset.delay || 0);
+          setTimeout(function () {
+            el.classList.add('is-visible');
+          }, delay);
+          observer.unobserve(el);
+        }
+      });
+    }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+    selectors.forEach(function (sel) {
+      document.querySelectorAll(sel).forEach(function (el) {
+        el.classList.add('scroll-reveal');
+        observer.observe(el);
+      });
+    });
+
+    /* Stagger children inside grids */
+    ['.home-what-inner', '.blog-grid', '.about-family-photos', '.services', '.about-family-photos', '.contact-options'].forEach(function (parent) {
+      var children = document.querySelectorAll(parent + ' > *');
+      children.forEach(function (child, i) {
+        child.dataset.delay = i * 90;
+      });
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
