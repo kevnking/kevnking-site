@@ -11,17 +11,21 @@
     '.about-family-photos',
     '.home-story-text',
     '.home-story-photos',
-    '.home-cta',
+    '.home-cta-inner',
     '.sell-why',
     '.wwm-hero-inner',
     '.contact-hero-inner',
     '.contact-options',
-    '.co'
+    '.co',
+    '.home-what-header'
   ];
 
   function init() {
+    // Only hide elements once JS is confirmed running
+    document.body.classList.add('js-ready');
+
     var observer = new IntersectionObserver(function (entries) {
-      entries.forEach(function (entry, i) {
+      entries.forEach(function (entry) {
         if (entry.isIntersecting) {
           var el = entry.target;
           var delay = parseInt(el.dataset.delay || 0);
@@ -31,7 +35,7 @@
           observer.unobserve(el);
         }
       });
-    }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+    }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
 
     selectors.forEach(function (sel) {
       document.querySelectorAll(sel).forEach(function (el) {
@@ -40,10 +44,9 @@
       });
     });
 
-    /* Stagger children inside grids */
-    ['.home-what-inner', '.blog-grid', '.about-family-photos', '.services', '.about-family-photos', '.contact-options'].forEach(function (parent) {
-      var children = document.querySelectorAll(parent + ' > *');
-      children.forEach(function (child, i) {
+    // Stagger grid children
+    ['.home-what-grid', '.blog-grid', '.about-family-photos', '.services', '.contact-options'].forEach(function (parent) {
+      document.querySelectorAll(parent + ' > *').forEach(function (child, i) {
         child.dataset.delay = i * 90;
       });
     });
