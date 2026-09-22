@@ -3,7 +3,33 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>First Flip Deal Analyzer — Kevin King</title>
+<title>First Flip Deal Analyzer | Kevin King</title>
+<meta name="description" content="Free deal analyzer for your first house flip from Tulsa investor Kevin King. Enter ARV, rehab by trade, holding and selling costs — get your max offer and a pass/fail on the 80% rule.">
+<!-- Set this to the final URL you host it at: -->
+<link rel="canonical" href="https://kevnking.com/deal-analyzer">
+<meta name="theme-color" content="#191919">
+<meta property="og:type" content="website">
+<meta property="og:title" content="First Flip Deal Analyzer | Kevin King">
+<meta property="og:description" content="The backwards math for your first flip: ARV, rehab in trade buckets, holding, selling — your max offer and a pass/fail verdict.">
+<meta property="og:url" content="https://kevnking.com/deal-analyzer">
+<meta name="twitter:card" content="summary">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "First Flip Deal Analyzer",
+  "applicationCategory": "FinanceApplication",
+  "operatingSystem": "Any",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+  "author": {
+    "@type": "Person",
+    "name": "Kevin King",
+    "jobTitle": "Real estate investor and licensed Oklahoma sales associate",
+    "url": "https://kevnking.com"
+  },
+  "description": "Analyze a first house flip: after-repair value, rehab budget by trade, holding and selling costs, maximum offer, and a pass/fail check against 80% of ARV."
+}
+</script>
 <style>
   :root {
     box-sizing: border-box;
@@ -78,20 +104,22 @@
   .moneyin input {
     flex: 1; min-width: 0; border: 0; background: transparent; color: var(--ink);
     font: inherit; font-size: 17px; font-weight: 700; padding: 11px 12px 11px 6px; text-align: right;
+    caret-color: var(--ink);
   }
-  .moneyin input:focus { outline: none; }
-  .moneyin:focus-within { border-color: var(--brick); box-shadow: 0 0 0 2px var(--brick); }
+  .moneyin input:focus, .moneyin input:focus-visible { outline: none; box-shadow: none; }
+  .moneyin:focus-within { border-color: var(--brick); box-shadow: 0 0 0 1px var(--brick); }
   input::placeholder { color: var(--gray); font-weight: 400; }
 
-  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 12px; }
-  @media (max-width: 430px) { .grid2 { grid-template-columns: 1fr; } }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 12px; align-items: end; }
+  .grid2 .field { margin-bottom: 0; }
+  @media (max-width: 560px) { .grid2 { grid-template-columns: 1fr; } }
 
   .buckets { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 12px; }
-  @media (max-width: 520px) { .buckets { grid-template-columns: 1fr; } }
+  @media (max-width: 560px) { .buckets { grid-template-columns: 1fr; } .bucket .moneyin { width: 150px; } }
   .bucket { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
   .bucket label { font-size: 13.5px; flex: 1; }
   .bucket .moneyin { width: 128px; flex: none; }
-  .bucket .moneyin input { font-size: 15px; padding: 8px 10px 8px 4px; }
+  .bucket .moneyin input { font-size: 16px; padding: 10px 10px 10px 4px; }
 
   .subtotal { display: flex; justify-content: space-between; border-top: 1px solid var(--line);
     margin-top: 14px; padding-top: 10px; font-weight: 700; font-size: 15px; }
@@ -108,6 +136,16 @@
   .verdict.pass { border-color: var(--pass); }
   .verdict.fail { border-color: var(--brick); }
   .verdict p.say { margin-top: 8px; font-size: 14.5px; max-width: 56ch; }
+  .eq { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--line);
+    font-size: 13.5px; color: var(--gray); line-height: 1.7; }
+  .eq b { color: var(--ink); font-weight: 700; }
+  .eq .op { padding: 0 3px; }
+  button.sample {
+    font: inherit; font-size: 13.5px; font-weight: 700; color: var(--brick);
+    background: none; border: 1px solid var(--brick); border-radius: 6px;
+    padding: 8px 14px; cursor: pointer; margin-top: 6px;
+  }
+  button.sample:focus-visible { outline: 2px solid var(--brick); outline-offset: 2px; }
   .rows { margin-top: 14px; border-top: 1px solid var(--line); }
   .row { display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--line); font-size: 14.5px; }
   .row .v { font-weight: 700; white-space: nowrap; }
@@ -124,7 +162,7 @@
     background: none; border: 1px solid var(--line); border-radius: 6px;
     padding: 8px 14px; cursor: pointer; margin-top: 20px;
   }
-  button.reset:focus-visible, .moneyin input:focus-visible { outline: 2px solid var(--brick); outline-offset: 2px; }
+  button.reset:focus-visible { outline: 2px solid var(--brick); outline-offset: 2px; }
 
   footer.end { padding: 30px 0 10px; border-top: 1px solid var(--line); margin-top: 26px; }
   footer.end h3 { font-size: 17px; margin-bottom: 6px; }
@@ -171,10 +209,11 @@
         <div class="moneyin"><span class="sym">$</span><input id="arv" inputmode="numeric" placeholder="0"></div>
       </div>
       <div class="field">
-        <label for="price">Price you'd pay for the house <span class="note">(asking or your offer)</span></label>
+        <label for="price">Price you'd pay <span class="note">(asking price, or your offer)</span></label>
         <div class="moneyin"><span class="sym">$</span><input id="price" inputmode="numeric" placeholder="0"></div>
       </div>
     </div>
+    <button class="sample" id="example">Not sure what goes where? Load a sample deal</button>
   </section>
 
   <section class="step">
@@ -192,6 +231,7 @@
         <div class="subtotal" style="margin-top:0;border-top:0;padding-top:12px"><span>Rehab total</span><span class="v" id="rehabTotal">$0</span></div>
       </div>
     </div>
+    <p class="hint" style="margin:8px 0 0">Every dollar here comes off your max offer, dollar for dollar.</p>
   </section>
 
   <section class="step">
@@ -217,6 +257,7 @@
       </div>
     </div>
     <div class="subtotal"><span>Holding total</span><span class="v" id="holdTotal">$0</span></div>
+    <p class="hint" style="margin:8px 0 0">Stretch the timeline and watch this grow — slow is the expensive way to be careful.</p>
   </section>
 
   <section class="step">
@@ -240,7 +281,8 @@
     <div class="head" id="vHead">THE VERDICT</div>
     <div class="body">
       <div class="big" id="vBig">Put your numbers in</div>
-      <p class="say" id="vSay">All-in has to land at 78–80% of ARV or less. Most houses fail this math. That's the system working.</p>
+      <p class="say" id="vSay">All-in has to land at 78–80% of ARV or less. Most houses fail this math. That's the system working. Not sure where to start? Load the sample deal in Step 1.</p>
+      <div class="eq" id="eq" hidden></div>
       <div class="rows" id="vRows" hidden>
         <div class="row"><span>Max all-in (80% of ARV)</span><span class="v" id="rMax"></span></div>
         <div class="row"><span>Your all-in (price + rehab + holding + selling)</span><span class="v" id="rAllin"></span></div>
@@ -342,11 +384,22 @@
     var maxOffer = maxAllin - rehab - hold - sell;
     var v = el("verdict"), chip = el("sChip");
 
+    var eq = el("eq");
+    if (arv) {
+      eq.hidden = false;
+      eq.innerHTML = "How it's built: 80% of ARV <b>" + fmt(maxAllin) + "</b>" +
+        '<span class="op">\u2212</span> rehab <b>' + fmt(rehab) + "</b>" +
+        '<span class="op">\u2212</span> holding <b>' + fmt(hold) + "</b>" +
+        '<span class="op">\u2212</span> selling <b>' + fmt(sell) + "</b>" +
+        '<span class="op">=</span> max offer <b>' + fmt(Math.max(maxOffer,0)) + "</b>. " +
+        "Change any number above and watch this line move.";
+    } else { eq.hidden = true; }
+
     if (!arv) {
       v.className = "verdict";
       el("vHead").textContent = "THE VERDICT";
       el("vBig").textContent = "Put your numbers in";
-      el("vSay").textContent = "All-in has to land at 78\u201380% of ARV or less. Most houses fail this math. That's the system working.";
+      el("vSay").textContent = "All-in has to land at 78\u201380% of ARV or less. Most houses fail this math. That's the system working. Not sure where to start? Load the sample deal in Step 1.";
       el("vRows").hidden = true;
       el("sOffer").textContent = "$\u2014";
       chip.className = "chip"; chip.textContent = "Enter ARV";
@@ -414,7 +467,34 @@
     } catch(e){}
   }
 
-  FIELDS.forEach(function(f){ el(f).addEventListener("input", calc); });
+  var MONEY = ["arv","price","mint","mown","close","asc"];
+  for (var m=0;m<BUCKETS.length;m++) MONEY.push("bk"+m);
+  FIELDS.forEach(function(f){
+    el(f).addEventListener("input", calc);
+    if (MONEY.indexOf(f) > -1) {
+      el(f).addEventListener("blur", function(){
+        var n = num(this.id);
+        this.value = n ? Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") : "";
+      });
+      el(f).addEventListener("focus", function(){
+        this.value = (this.value || "").replace(/,/g, "");
+      });
+    }
+  });
+  var SAMPLE = {
+    arv: "320000", price: "105000",
+    bk0: "8000",  bk1: "12000", bk2: "6000", bk3: "7500", bk4: "9000",
+    bk5: "7000",  bk6: "15000", bk7: "9000", bk8: "12000", bk9: "10000",
+    bk10: "3000", bk11: "5000",
+    cont: "5", mint: "1400", mown: "450", remo: "4", dom: "45",
+    comm: "6", close: "2500", asc: "", ltv: "80"
+  };
+  document.getElementById("example").addEventListener("click", function(){
+    FIELDS.forEach(function(f){ el(f).value = SAMPLE[f] !== undefined ? SAMPLE[f] : ""; });
+    calc();
+    el("verdict").scrollIntoView({ behavior: "smooth", block: "center" });
+  });
+
   document.getElementById("reset").addEventListener("click", function(){
     FIELDS.forEach(function(f){ el(f).value = ""; });
     el("cont").value = "5"; el("dom").value = "45"; el("comm").value = "6";
