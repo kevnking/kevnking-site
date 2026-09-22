@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>First Flip Deal Analyzer — Kevin King</title>
+<style>
+  :root {
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    --ink: #191919;
+    --paper: #FBFAF7;
+    --surface: #F4F1EC;
+    --line: #D8D2C8;
+    --gray: #6B6B6B;
+    --brick: #A6432B;
+    --brick-ink: #FBFAF7;
+    --pass: #2E6B3F;
+    --shadow: rgba(25,25,25,.08);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ink: #F0EDE7;
+      --paper: #1B1A19;
+      --surface: #242220;
+      --line: #3B3834;
+      --gray: #A29C93;
+      --brick: #C75E43;
+      --brick-ink: #1B1A19;
+      --pass: #6FBF85;
+      --shadow: rgba(0,0,0,.35);
+    }
+  }
+  :root[data-theme="dark"] {
+    --ink: #F0EDE7; --paper: #1B1A19; --surface: #242220; --line: #3B3834;
+    --gray: #A29C93; --brick: #C75E43; --brick-ink: #1B1A19; --pass: #6FBF85;
+    --shadow: rgba(0,0,0,.35);
+  }
+  html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+  * { box-sizing: inherit; margin: 0; }
+  html, body { height: 100%; }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 680px; margin: 0 auto; padding: 0 20px 140px; }
+
+  /* Masthead — matches the book cover */
+  header.mast {
+    background: #191919;
+    border-top: 8px solid #A6432B;
+    color: #FBFAF7;
+    padding: 34px 0 30px;
+  }
+  header.mast .wrap { padding-bottom: 0; }
+  .mast .who { font-weight: 700; font-size: 12px; letter-spacing: .08em; }
+  .mast .where { color: #B8B2A8; font-size: 12.5px; margin-top: 2px; }
+  .mast h1 { font-size: clamp(30px, 7.5vw, 44px); line-height: 1.05; font-weight: 700; margin-top: 18px; letter-spacing: -.01em; }
+  .mast .bar { width: 84px; height: 4px; background: #A6432B; margin: 18px 0 14px; }
+  .mast p.sub { color: #D8D2C8; font-size: 15px; max-width: 46ch; }
+
+  main { padding-top: 8px; }
+  section.step { border-bottom: 1px solid var(--line); padding: 26px 0 24px; }
+  .stepno { color: var(--brick); font-weight: 700; font-size: 12px; letter-spacing: .06em; }
+  section.step h2 { font-size: 20px; font-weight: 700; margin: 4px 0 4px; }
+  .hint { color: var(--gray); font-size: 13.5px; margin-bottom: 14px; max-width: 58ch; }
+
+  .field { margin-bottom: 12px; }
+  .field label { display: block; font-size: 13.5px; font-weight: 700; margin-bottom: 4px; }
+  .field .note { font-weight: 400; color: var(--gray); }
+  .moneyin { display: flex; align-items: center; background: var(--surface); border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
+  .moneyin span.sym { padding: 0 0 0 12px; color: var(--gray); font-size: 15px; }
+  .moneyin input {
+    flex: 1; min-width: 0; border: 0; background: transparent; color: var(--ink);
+    font: inherit; font-size: 17px; font-weight: 700; padding: 11px 12px 11px 6px; text-align: right;
+  }
+  .moneyin input:focus { outline: none; }
+  .moneyin:focus-within { border-color: var(--brick); box-shadow: 0 0 0 2px var(--brick); }
+  input::placeholder { color: var(--gray); font-weight: 400; }
+
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 12px; }
+  @media (max-width: 430px) { .grid2 { grid-template-columns: 1fr; } }
+
+  .buckets { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 12px; }
+  @media (max-width: 520px) { .buckets { grid-template-columns: 1fr; } }
+  .bucket { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .bucket label { font-size: 13.5px; flex: 1; }
+  .bucket .moneyin { width: 128px; flex: none; }
+  .bucket .moneyin input { font-size: 15px; padding: 8px 10px 8px 4px; }
+
+  .subtotal { display: flex; justify-content: space-between; border-top: 1px solid var(--line);
+    margin-top: 14px; padding-top: 10px; font-weight: 700; font-size: 15px; }
+  .subtotal .v { color: var(--brick); }
+
+  /* Verdict */
+  .verdict { margin: 26px 0 8px; border: 2px solid var(--line); border-radius: 8px; overflow: hidden; }
+  .verdict .head { padding: 10px 16px; font-weight: 700; font-size: 12.5px; letter-spacing: .06em;
+    background: var(--surface); color: var(--gray); }
+  .verdict.pass .head { background: var(--pass); color: var(--paper); }
+  .verdict.fail .head { background: var(--brick); color: var(--brick-ink); }
+  .verdict .body { padding: 16px; }
+  .verdict .big { font-size: 30px; font-weight: 700; line-height: 1.1; }
+  .verdict.pass { border-color: var(--pass); }
+  .verdict.fail { border-color: var(--brick); }
+  .verdict p.say { margin-top: 8px; font-size: 14.5px; max-width: 56ch; }
+  .rows { margin-top: 14px; border-top: 1px solid var(--line); }
+  .row { display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--line); font-size: 14.5px; }
+  .row .v { font-weight: 700; white-space: nowrap; }
+  .row.total { font-weight: 700; font-size: 15.5px; }
+  .row.total .v { color: var(--brick); }
+  .row .v.good { color: var(--pass); }
+
+  .callout { background: var(--surface); border: 1px solid var(--line); border-radius: 8px;
+    padding: 14px 16px; font-size: 14px; margin-top: 16px; }
+  .callout b { font-weight: 700; }
+
+  button.reset {
+    font: inherit; font-size: 13.5px; font-weight: 700; color: var(--gray);
+    background: none; border: 1px solid var(--line); border-radius: 6px;
+    padding: 8px 14px; cursor: pointer; margin-top: 20px;
+  }
+  button.reset:focus-visible, .moneyin input:focus-visible { outline: 2px solid var(--brick); outline-offset: 2px; }
+
+  footer.end { padding: 30px 0 10px; border-top: 1px solid var(--line); margin-top: 26px; }
+  footer.end h3 { font-size: 17px; margin-bottom: 6px; }
+  footer.end p { font-size: 14.5px; max-width: 58ch; }
+  footer.end .fine { color: var(--gray); font-size: 12px; margin-top: 14px; }
+  footer.end a { color: var(--brick); font-weight: 700; text-decoration: none; }
+
+  /* Sticky live bar */
+  .stick {
+    position: fixed; left: 0; right: 0; bottom: 0;
+    background: #191919; color: #FBFAF7;
+    padding: 10px 20px calc(10px + env(safe-area-inset-bottom, 0px));
+    box-shadow: 0 -4px 16px var(--shadow);
+  }
+  .stick .in { max-width: 680px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .stick .lbl { font-size: 11.5px; letter-spacing: .05em; color: #B8B2A8; font-weight: 700; }
+  .stick .num { font-size: 22px; font-weight: 700; line-height: 1.1; }
+  .stick .chip { font-size: 12.5px; font-weight: 700; padding: 6px 12px; border-radius: 99px; background: #3A3835; color: #D8D2C8; white-space: nowrap; }
+  .stick .chip.pass { background: #2E6B3F; color: #FBFAF7; }
+  .stick .chip.fail { background: #A6432B; color: #FBFAF7; }
+</style>
+</head>
+<body>
+
+<header class="mast">
+  <div class="wrap">
+    <div class="who">KEVIN KING</div>
+    <div class="where">Tulsa, Oklahoma</div>
+    <h1>First Flip Deal Analyzer</h1>
+    <div class="bar"></div>
+    <p class="sub">The backwards math from Flip Your First House. Put in real numbers and it tells you the most you can pay — and whether the deal you're looking at passes or fails.</p>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section class="step">
+    <div class="stepno">STEP 1</div>
+    <h2>What it sells for finished</h2>
+    <p class="hint">Your ARV from sold comps — finished houses, same pocket, similar size, recent. Use the boring comps, not the outlier. The bank's appraiser will grade this number later.</p>
+    <div class="grid2">
+      <div class="field">
+        <label for="arv">ARV (after-repair value)</label>
+        <div class="moneyin"><span class="sym">$</span><input id="arv" inputmode="numeric" placeholder="0"></div>
+      </div>
+      <div class="field">
+        <label for="price">Price you'd pay for the house <span class="note">(asking or your offer)</span></label>
+        <div class="moneyin"><span class="sym">$</span><input id="price" inputmode="numeric" placeholder="0"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="step">
+    <div class="stepno">STEP 2</div>
+    <h2>Rehab, in trade buckets</h2>
+    <p class="hint">One number per trade, labor and material together. Licensed people on licensed trades. Leave a bucket at zero if the house doesn't need it — but walk every room before you decide it doesn't.</p>
+    <div class="buckets" id="buckets"></div>
+    <div class="grid2" style="margin-top:14px">
+      <div class="field">
+        <label for="cont">Contingency <span class="note">(% of rehab — for what the house hides)</span></label>
+        <div class="moneyin"><input id="cont" inputmode="decimal" value="5" style="text-align:right"><span class="sym" style="padding:0 12px 0 0">%</span></div>
+      </div>
+      <div class="field">
+        <label>&nbsp;</label>
+        <div class="subtotal" style="margin-top:0;border-top:0;padding-top:12px"><span>Rehab total</span><span class="v" id="rehabTotal">$0</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="step">
+    <div class="stepno">STEP 3</div>
+    <h2>Holding costs</h2>
+    <p class="hint">What it costs you every month you own it, times your whole timeline — remodel plus time on market. Be honest about the timeline. First flips run long.</p>
+    <div class="grid2">
+      <div class="field">
+        <label for="mint">Loan interest per month</label>
+        <div class="moneyin"><span class="sym">$</span><input id="mint" inputmode="numeric" placeholder="0"></div>
+      </div>
+      <div class="field">
+        <label for="mown">Insurance + utilities + taxes per month</label>
+        <div class="moneyin"><span class="sym">$</span><input id="mown" inputmode="numeric" placeholder="0"></div>
+      </div>
+      <div class="field">
+        <label for="remo">Remodel timeline <span class="note">(months)</span></label>
+        <div class="moneyin"><input id="remo" inputmode="decimal" placeholder="4" style="text-align:right"></div>
+      </div>
+      <div class="field">
+        <label for="dom">Time on market <span class="note">(days)</span></label>
+        <div class="moneyin"><input id="dom" inputmode="numeric" value="45" style="text-align:right"></div>
+      </div>
+    </div>
+    <div class="subtotal"><span>Holding total</span><span class="v" id="holdTotal">$0</span></div>
+  </section>
+
+  <section class="step">
+    <div class="stepno">STEP 4</div>
+    <h2>Selling costs</h2>
+    <p class="hint">Commission plus closing costs. If you're not an agent, budget the full commission.</p>
+    <div class="grid2">
+      <div class="field">
+        <label for="comm">Commission <span class="note">(% of ARV)</span></label>
+        <div class="moneyin"><input id="comm" inputmode="decimal" value="6" style="text-align:right"><span class="sym" style="padding:0 12px 0 0">%</span></div>
+      </div>
+      <div class="field">
+        <label for="close">Closing costs at sale</label>
+        <div class="moneyin"><span class="sym">$</span><input id="close" inputmode="numeric" value="2500"></div>
+      </div>
+    </div>
+    <div class="subtotal"><span>Selling total</span><span class="v" id="sellTotal">$0</span></div>
+  </section>
+
+  <div class="verdict" id="verdict">
+    <div class="head" id="vHead">THE VERDICT</div>
+    <div class="body">
+      <div class="big" id="vBig">Put your numbers in</div>
+      <p class="say" id="vSay">All-in has to land at 78–80% of ARV or less. Most houses fail this math. That's the system working.</p>
+      <div class="rows" id="vRows" hidden>
+        <div class="row"><span>Max all-in (80% of ARV)</span><span class="v" id="rMax"></span></div>
+        <div class="row"><span>Your all-in (price + rehab + holding + selling)</span><span class="v" id="rAllin"></span></div>
+        <div class="row"><span>Your all-in as % of ARV</span><span class="v" id="rPct"></span></div>
+        <div class="row total"><span>Max you can pay for this house</span><span class="v" id="rOffer"></span></div>
+        <div class="row"><span>Projected check at closing when it sells</span><span class="v good" id="rCheck"></span></div>
+      </div>
+    </div>
+  </div>
+  <p class="hint" style="margin-top:10px">The check at closing is the scoreboard: sale price minus everything — loan payoffs, whoever you borrowed from, selling costs. This projection assumes you hit your budget. Something will run over. That's what the contingency is for.</p>
+
+  <section class="step" style="border-bottom:0">
+    <div class="stepno">STEP 5</div>
+    <h2>The bank check</h2>
+    <p class="hint">You need a signed contract before the bank does anything. Then the bank orders an appraisal — the as-completed value — and everything swings on that number. Most banks lend around 80% of it, and some still want a percentage of your cost down.</p>
+    <div class="grid2">
+      <div class="field">
+        <label for="asc">As-completed value <span class="note">(use your ARV until the appraisal lands)</span></label>
+        <div class="moneyin"><span class="sym">$</span><input id="asc" inputmode="numeric" placeholder="same as ARV"></div>
+      </div>
+      <div class="field">
+        <label for="ltv">Bank lends <span class="note">(% of as-completed)</span></label>
+        <div class="moneyin"><input id="ltv" inputmode="decimal" value="80" style="text-align:right"><span class="sym" style="padding:0 12px 0 0">%</span></div>
+      </div>
+    </div>
+    <div class="rows">
+      <div class="row"><span>Bank will lend about</span><span class="v" id="bLend"></span></div>
+      <div class="row"><span>Purchase + rehab (project cost)</span><span class="v" id="bCost"></span></div>
+      <div class="row total"><span>Cash you need to bring</span><span class="v" id="bGap"></span></div>
+    </div>
+    <div class="callout"><b>When the real appraisal comes back:</b> put the appraiser's number in the ARV box and rerun everything. His number decides the deal, not yours.</div>
+    <button class="reset" id="reset">Clear and start over</button>
+  </section>
+
+  <footer class="end">
+    <h3>Questions? Text me.</h3>
+    <p>Text me at <a href="sms:9188539182">918-853-9182</a> or DM me on Instagram <a href="https://www.instagram.com/kevn.king" rel="noopener">@kevn.king</a>. Send your deal's numbers — and if you're stuck on a step, tell me which one.</p>
+    <p class="fine">This tool reflects how I underwrite my own flips. It's experience, not legal, tax, or investment advice — run your own numbers and your own professionals.</p>
+  </footer>
+</main>
+
+<div class="stick" role="status">
+  <div class="in">
+    <div>
+      <div class="lbl">MAX YOU CAN PAY</div>
+      <div class="num" id="sOffer">$—</div>
+    </div>
+    <div class="chip" id="sChip">Enter ARV</div>
+  </div>
+</div>
+
+<script>
+(function(){
+  var BUCKETS = [
+    "Framing & structural","Roof","Plumbing","Electrical","HVAC",
+    "Tile & waterproofing","Drywall, paint & finish","Floors",
+    "Cabinets & counters","Exterior & siding","Landscaping","Other / finish work"
+  ];
+  var host = document.getElementById("buckets");
+  BUCKETS.forEach(function(name, i){
+    var d = document.createElement("div");
+    d.className = "bucket";
+    d.innerHTML = '<label for="bk'+i+'">'+name+'</label>' +
+      '<div class="moneyin"><span class="sym">$</span><input id="bk'+i+'" inputmode="numeric" placeholder="0"></div>';
+    host.appendChild(d);
+  });
+
+  function el(id){ return document.getElementById(id); }
+  function num(id){
+    var v = (el(id).value || "").replace(/[^0-9.]/g, "");
+    var n = parseFloat(v);
+    return isFinite(n) ? n : 0;
+  }
+  function fmt(n){
+    var neg = n < 0; n = Math.round(Math.abs(n));
+    return (neg ? "-$" : "$") + n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  }
+
+  var FIELDS = ["arv","price","cont","mint","mown","remo","dom","comm","close","asc","ltv"];
+  for (var i=0;i<BUCKETS.length;i++) FIELDS.push("bk"+i);
+
+  function calc(){
+    var arv = num("arv");
+    var price = num("price");
+
+    var rehabBase = 0;
+    for (var i=0;i<BUCKETS.length;i++) rehabBase += num("bk"+i);
+    var rehab = rehabBase * (1 + num("cont")/100);
+    el("rehabTotal").textContent = fmt(rehab) + (rehabBase ? "  (incl. contingency)" : "");
+
+    var months = (el("remo").value === "" ? 4 : num("remo")) + num("dom")/30;
+    var hold = (num("mint") + num("mown")) * months;
+    el("holdTotal").textContent = fmt(hold);
+
+    var sell = arv * num("comm")/100 + num("close");
+    el("sellTotal").textContent = fmt(sell);
+
+    var maxAllin = arv * 0.80;
+    var maxOffer = maxAllin - rehab - hold - sell;
+    var v = el("verdict"), chip = el("sChip");
+
+    if (!arv) {
+      v.className = "verdict";
+      el("vHead").textContent = "THE VERDICT";
+      el("vBig").textContent = "Put your numbers in";
+      el("vSay").textContent = "All-in has to land at 78\u201380% of ARV or less. Most houses fail this math. That's the system working.";
+      el("vRows").hidden = true;
+      el("sOffer").textContent = "$\u2014";
+      chip.className = "chip"; chip.textContent = "Enter ARV";
+    } else {
+      el("vRows").hidden = false;
+      el("rMax").textContent = fmt(maxAllin);
+      el("rOffer").textContent = fmt(Math.max(maxOffer, 0)) + (maxOffer < 0 ? " (rehab alone kills it)" : "");
+      el("sOffer").textContent = fmt(Math.max(maxOffer, 0));
+
+      if (price) {
+        var allin = price + rehab + hold + sell;
+        var pct = allin / arv * 100;
+        var check = arv - allin;
+        el("rAllin").textContent = fmt(allin);
+        el("rPct").textContent = pct.toFixed(1) + "%";
+        el("rCheck").textContent = fmt(check);
+        el("rCheck").className = "v " + (check >= 0 ? "good" : "");
+        if (pct <= 78) {
+          v.className = "verdict pass"; el("vHead").textContent = "PASSES THE MATH";
+          el("vBig").textContent = pct.toFixed(1) + "% of ARV";
+          el("vSay").textContent = "Under 78%. This is what a deal is supposed to look like on paper. Now go verify the ARV like an appraiser will.";
+          chip.className = "chip pass"; chip.textContent = "PASS \u00b7 " + pct.toFixed(0) + "%";
+        } else if (pct <= 80) {
+          v.className = "verdict pass"; el("vHead").textContent = "PASSES \u2014 AT THE EDGE";
+          el("vBig").textContent = pct.toFixed(1) + "% of ARV";
+          el("vSay").textContent = "Inside 78\u201380%, but there's no room for a soft ARV or a budget miss. Tighten the comps and the scope before you sign anything.";
+          chip.className = "chip pass"; chip.textContent = "EDGE \u00b7 " + pct.toFixed(0) + "%";
+        } else {
+          v.className = "verdict fail"; el("vHead").textContent = "FAILS THE MATH";
+          el("vBig").textContent = pct.toFixed(1) + "% of ARV";
+          el("vSay").textContent = "Over 80% all-in. At this price, I pass \u2014 don't talk yourself into it and don't count on the market to bail you out. Offer " + fmt(Math.max(maxOffer,0)) + " or walk.";
+          chip.className = "chip fail"; chip.textContent = "FAIL \u00b7 " + pct.toFixed(0) + "%";
+        }
+      } else {
+        v.className = "verdict";
+        el("vHead").textContent = "YOUR MAX OFFER";
+        el("vBig").textContent = fmt(Math.max(maxOffer, 0));
+        el("vSay").textContent = "That's the most you can pay and stay at 80% all-in. Add a purchase price above to grade a specific deal.";
+        el("rAllin").textContent = "\u2014"; el("rPct").textContent = "\u2014"; el("rCheck").textContent = "\u2014";
+        chip.className = "chip"; chip.textContent = "Add a price";
+      }
+    }
+
+    var asc = num("asc") || arv;
+    var lend = asc * num("ltv")/100;
+    var cost = price + rehab;
+    el("bLend").textContent = asc ? fmt(lend) : "\u2014";
+    el("bCost").textContent = cost ? fmt(cost) : "\u2014";
+    el("bGap").textContent = (asc && cost) ? fmt(Math.max(cost - lend, 0)) + (cost - lend <= 0 ? " (loan covers it \u2014 plus whatever they want down)" : " + closing costs") : "\u2014";
+
+    save();
+  }
+
+  function save(){
+    try {
+      var d = {};
+      FIELDS.forEach(function(f){ d[f] = el(f).value; });
+      localStorage.setItem("ffda", JSON.stringify(d));
+    } catch(e){}
+  }
+  function load(){
+    try {
+      var d = JSON.parse(localStorage.getItem("ffda") || "{}");
+      FIELDS.forEach(function(f){ if (d[f] !== undefined && d[f] !== "") el(f).value = d[f]; });
+    } catch(e){}
+  }
+
+  FIELDS.forEach(function(f){ el(f).addEventListener("input", calc); });
+  document.getElementById("reset").addEventListener("click", function(){
+    FIELDS.forEach(function(f){ el(f).value = ""; });
+    el("cont").value = "5"; el("dom").value = "45"; el("comm").value = "6";
+    el("close").value = "2500"; el("ltv").value = "80";
+    try { localStorage.removeItem("ffda"); } catch(e){}
+    calc();
+  });
+
+  load(); calc();
+})();
+</script>
+</body>
+</html>
