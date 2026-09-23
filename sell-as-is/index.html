@@ -105,7 +105,7 @@ async function submitForm() {
   <input type="text" name="c-fname"><input type="text" name="c-lname">
   <input type="tel" name="c-phone"><input type="email" name="c-email">
   <select name="c-time"></select><input type="text" name="pg">
-  <input type="text" name="address"><select name="type"></select>
+  <input type="text" name="address"><input type="text" name="city"><input type="text" name="state"><select name="type"></select>
   <input type="text" name="sqft"><input type="text" name="cg">
   <textarea name="describe"></textarea>
   <select name="why"></select><input type="text" name="tg">
@@ -177,7 +177,11 @@ async function submitForm() {
         <h3 style="font-family:var(--serif);font-size:26px;font-weight:500;margin-bottom:8px;">Tell me about the property.</h3>
         <p style="font-size:15px;margin-bottom:36px;">The more detail you share, the faster I can put together an honest offer.</p>
 
-        <div class="fg"><label for="address">Property address</label><input type="text" id="address" name="address" placeholder="123 Main St, Tulsa, OK"></div>
+        <div class="fg"><label for="address">Property address</label><input type="text" id="address" name="address" placeholder="123 Main St"></div>
+        <div class="fr">
+          <div class="fg"><label for="city">City</label><input type="text" id="city" name="city" placeholder="Tulsa"></div>
+          <div class="fg"><label for="state">State</label><input type="text" id="state" name="state" placeholder="OK"></div>
+        </div>
         <div class="fr">
           <div class="fg"><label for="type">Property type</label>
             <select id="type" name="type">
