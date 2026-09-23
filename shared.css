@@ -29,6 +29,14 @@ body { font-family: var(--sans); color: var(--ink); background: var(--white); li
 .photo-sons       { background: var(--ink) url("/images/hero-7.jpg") center/cover no-repeat; }
 .photo-kitchen    { background: var(--ink) url("/images/hero-8.jpg") center/cover no-repeat; }
 .photo-portrait   { background: var(--ink) url("/images/hero-9.jpg") center/cover no-repeat; }
+.photo-kevin        { background: var(--ink) url("/images/kevin-king-tulsa-realtor.jpg") center/cover no-repeat; }
+.photo-kevin-golf   { background: var(--ink) url("/images/kevin-king-mcgraw-realtors-golf.jpg") center/cover no-repeat; }
+.photo-panel        { background: var(--ink) url("/images/outdated-electrical-panel-tulsa-house.jpg") center/cover no-repeat; }
+.photo-dated-kitchen{ background: var(--ink) url("/images/dated-kitchen-inherited-house-tulsa.jpg") center/cover no-repeat; }
+.photo-bathroom     { background: var(--ink) url("/images/vintage-pink-bathroom-tulsa-fixer-upper.jpg") center/cover no-repeat; }
+.photo-fireplace    { background: var(--ink) url("/images/stone-fireplace-tulsa-fixer-upper.jpg") center/cover no-repeat; }
+.photo-cleanout     { background: var(--ink) url("/images/estate-cleanout-tulsa-kitchen.jpg") center/cover no-repeat; }
+.photo-walkthrough  { background: var(--ink) url("/images/vacant-house-walkthrough-tulsa.jpg") center/cover no-repeat; }
 
 /* SCROLL REVEAL */
 .scroll-reveal { transition: opacity 0.6s ease, transform 0.6s ease; }
