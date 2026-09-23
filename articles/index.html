@@ -48,13 +48,20 @@
       <span class="blog-meta">Month Year · X min</span>
     </a>
 
+    RULE: the href here must EXACTLY match the folder name under
+    /articles/. Card href /articles/foo/ requires the file to exist
+    at articles/foo/index.html. Every new article = 2 commits:
+      1. articles/<slug>/index.html   (the article)
+      2. articles/index.html          (this file, + its card)
+    Adding one without the other is why a link 404s.
+
     Photo options: photo-hero, photo-inspection, photo-studs,
     photo-couple, photo-porch, photo-family, photo-sons,
     photo-kitchen, photo-portrait
     ================================================================
     -->
 
-    <a href="/articles/sell-rental-property-with-tenants-tulsa/" class="blog-card" style="text-decoration:none;color:inherit;">
+    <a href="/articles/behind-on-mortgage-tulsa/" class="blog-card" style="text-decoration:none;color:inherit;">
       <div class="blog-card-img-wrap"><div class="photo-block photo-kitchen blog-card-img"></div></div>
       <span class="blog-cat">Landlording</span>
       <h3>Selling a rental property with tenants in Tulsa</h3>
